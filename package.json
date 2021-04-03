@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "name": "cfw-language-redirector",
+  "version": "1.0.0",
+  "description": "A simple worker to redirect your landing-pages to the language-specific versions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write '**/*.{js,css,json,md}'"
+  },
+  "author": "Kevin Kandlbinder <kevin@kevink.dev>",
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "prettier": "^1.19.1"
+  },
+  "dependencies": {
+    "accept-language-parser": "^1.5.0",
+    "url-matcher": "^0.2.2"
+  }
+}
