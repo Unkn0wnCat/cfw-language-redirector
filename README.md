@@ -10,7 +10,7 @@ Click the following button:
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Unkn0wnCat/cfw-language-redirector)
 
-After that continue with "How to configure?"
+After that continue with ["How to configure?"](#how-to-configure).
 
 ### The hard way
 
