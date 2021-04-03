@@ -1,34 +1,69 @@
 import { matchPattern } from "url-matcher";
 import { pick } from "accept-language-parser";
 
-import { listen_on_paths, default_language, supported_languages } from "./config.js";
+import config from "./config.js";
 
 
 addEventListener('fetch', event => {
   let request = event.request;
 
-  if(request.method !== "GET") {
+  // Only run on GET or HEAD requests
+  if(request.method !== "GET" && request.method !== "HEAD") {
     console.log("Request is non-GET, ignoring.");
     return;
   }
 
   let url = new URL(request.url);
 
-  let handleThis = false;
+  // Check if the path is already prefixed when enabled in config.
+  if(!config.listen_on_prefixed_paths) {
+    let urlArray = url.pathname.split("/");
+    
+    // Ignore if the url has no first part e.g. /
+    if(urlArray.length > 2) {
+      let firstPart = urlArray[1];
 
-  for(let i in listen_on_paths) {
-    let path = listen_on_paths[i];
+      let hasLanguage = false;
 
-    let match = matchPattern(path, url.pathname);
+      for(let i in config.supported_languages) {
+        let language = config.supported_languages[i];
 
-    console.log("Matching ", path, " against ", url.pathname, match);
+        // If there was a match, break from the loop.
+        if(language.toLowerCase() === firstPart.toLowerCase()) {
+          hasLanguage = true; 
+          break;
+        }
+      }
 
-    if(match && match.remainingPathname === "") {
-      handleThis = true;
-      break;
+      // Return if a language was found.
+      if(hasLanguage) {
+        console.log("The request already has a language prefix, ignoring.");
+        return;
+      }
     }
   }
 
+  // Weather or not this request should be handled.
+  let handleThis = config.listen_on_all_paths;
+
+  // Don't use route-matching when listen_on_all_paths is enabled.
+  if(!config.listen_on_all_paths) {
+    for(let i in config.listen_on_paths) {
+      let path = config.listen_on_paths[i];
+  
+      let match = matchPattern(path, url.pathname);
+  
+      console.log("Matching ", path, " against ", url.pathname, match);
+  
+      // If there was a match, break from the loop.
+      if(match && match.remainingPathname === "") {
+        handleThis = true;
+        break;
+      }
+    }
+  }
+
+  // Return if we are not supposed to handle this.
   if(!handleThis) {
     console.log("Request is not for us, ignoring.");
     return;
@@ -36,17 +71,20 @@ addEventListener('fetch', event => {
 
   let headers = request.headers;
 
+  // Use default language if no Accept-Language Header was sent by the client.
   if(!headers.has("Accept-Language")) {
-    event.respondWith(redirectWithPrefix(url, default_language));
+    event.respondWith(redirectWithPrefix(url, config.default_language));
     return;
   }
 
-  let language = pick(supported_languages, headers.get("Accept-Language"));
+  let language = pick(config.supported_languages, headers.get("Accept-Language"));
 
+  // If accept-language-parser didn't manage to find a supported language, use the default one.
   if(!language) {
     language = config.default_language;
   }
 
+  // Do the redirect.
   event.respondWith(redirectWithPrefix(url, language))
 })
 

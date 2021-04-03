@@ -8,5 +8,9 @@ module.exports = {
     "listen_on_paths": [
         "/",
         "/legal/about"
-    ]
+    ],
+    // This sets the worker to listen on all paths not prefixed with a language.
+    "listen_on_all_paths": false,
+    // DANGEROUS: The following sets the worker to run when a path already starts with /[some language]/something. This can lead to infinite redirects. Use responsibly.
+    "listen_on_prefixed_paths": false
 };
