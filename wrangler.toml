@@ -6,3 +6,4 @@ workers_dev = false
 #zone_id = ""
 
 [env.production]
+name = "cfw-language-redirector-prod"
