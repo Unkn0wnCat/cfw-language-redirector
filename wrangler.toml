@@ -1,7 +1,7 @@
 name = "cfw-language-redirector"
 type = "webpack"
 account_id = ""
-workers_dev = false
+workers_dev = true
 #route = ""
 #zone_id = ""
 
