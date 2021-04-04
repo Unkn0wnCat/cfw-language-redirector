@@ -1,5 +1,7 @@
 # Cloudflare Workers Language Redirector
 
+[![Deploy to CF-Workers](https://github.com/Unkn0wnCat/cfw-language-redirector/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unkn0wnCat/cfw-language-redirector/actions/workflows/deploy.yml)
+
 This project can be used to run in front of Cloudflare Pages or any static site. It takes incoming requests to the homepage and redirects them to /{the users language}. This is made to be used in conjunktion with something like [gatsby-plugin-react-i18next](https://www.gatsbyjs.com/plugins/gatsby-plugin-react-i18next/) for [GatsbyJS](https://www.gatsbyjs) so your users will have a fast redirect when landing on your site, but you can also have this worker run in front of any other "traditional" site to cut down in initial response times when users have to be redirected to a localized version of the page first.
 
 ## How to use?
