@@ -3,13 +3,15 @@ import { pick } from 'accept-language-parser'
 
 import config from './config.js'
 
-addEventListener('fetch', async event => {
+addEventListener('fetch', (event) => event.respondWith(handler(event)))
+
+const handler = async event => {
   const request = event.request
 
   // Only run on GET or HEAD requests
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     console.log('Request is non-GET, ignoring.')
-    return
+    return fetch(request)
   }
 
   const url = new URL(request.url)
@@ -36,8 +38,8 @@ addEventListener('fetch', async event => {
 
       // Return if a language was found.
       if (hasLanguage) {
-        console.log('The request already has a language prefix, ignoring.')
-        return
+        console.log('The request already has a language prefix ('+firstPart+'), ignoring.')
+        return fetch(request)
       }
     }
   }
@@ -56,34 +58,45 @@ addEventListener('fetch', async event => {
 
       // If there was a match, break from the loop.
       if (match && match.remainingPathname === '') {
+        console.log('Match')
         handleThis = true
         break
       }
+
+      console.log('No match')
     }
   }
 
   // Return if we are not supposed to handle this.
   if (!handleThis) {
-    console.log('Request is not for us, ignoring.')
 
     if(config.always_on_not_found) {
-      const res = await fetch(req)
-  
-      // Redirect if we'd return a 404 otherwise
-      if(res.status === 404) {
-        event.respondWith(redirectWithPrefix(url, config.default_language))
+      try {
+        const res = await fetch(request)
+        console.log(res)
+    
+        // Redirect if we'd return a 404 otherwise
+        if(res.status === 404) {
+          console.log('Sub-Request is 404, continuing.')
+        } else {
+          console.log('Sub-Request is '+res.status+', not redirecting.')
+          return fetch(request)
+        }
+      } catch(e) {
+        console.log(e);
+        console.log('Sub-Request failed, continuing.')
       }
+    } else {
+      console.log('Request is not for us, ignoring.')
+      return fetch(request)
     }
-
-    return
   }
 
   const headers = request.headers
 
   // Use default language if no Accept-Language Header was sent by the client.
   if (!headers.has('Accept-Language')) {
-    event.respondWith(redirectWithPrefix(url, config.default_language))
-    return
+    return redirectWithPrefix(url, config.default_language)
   }
 
   let language = pick(
@@ -97,8 +110,8 @@ addEventListener('fetch', async event => {
   }
 
   // Do the redirect.
-  event.respondWith(redirectWithPrefix(url, language))
-})
+  return redirectWithPrefix(url, language)
+}
 
 /**
  * Generate a HTTP response redirecting to a URL, prefixed with a prefix.
