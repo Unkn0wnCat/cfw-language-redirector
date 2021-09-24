@@ -3,7 +3,7 @@ import { pick } from 'accept-language-parser'
 
 import config from './config.js'
 
-addEventListener('fetch', event => {
+addEventListener('fetch', async event => {
   const request = event.request
 
   // Only run on GET or HEAD requests
