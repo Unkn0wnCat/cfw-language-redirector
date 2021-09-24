@@ -65,6 +65,16 @@ addEventListener('fetch', event => {
   // Return if we are not supposed to handle this.
   if (!handleThis) {
     console.log('Request is not for us, ignoring.')
+
+    if(config.always_on_not_found) {
+      const res = await fetch(req)
+  
+      // Redirect if we'd return a 404 otherwise
+      if(res.status === 404) {
+        event.respondWith(redirectWithPrefix(url, config.default_language))
+      }
+    }
+
     return
   }
 
